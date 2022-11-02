@@ -15,6 +15,8 @@ namespace Sber.ApiClient
         Task<bool> IsOrderPaid(string orderNumber);
         Task<ResponseCode> Refund(RefundRequest request);
         Task<ResponseCode> Refund(string orderNumber, long amount);
+        Task<ResponseCode> Reverse(ReverseRequest request);
+        Task<ResponseCode> Reverse(string orderNumber, long amount);
     }
     public class SberApiClient : ISberApiClient
     {
@@ -32,7 +34,7 @@ namespace Sber.ApiClient
             var parameters = request.ToKeyValuePair(
                 new[]{new KeyValuePair<string, string>("userName", login),
                     new KeyValuePair<string, string>("password", pass)});
-            var responce = await httpClient.SendAsync(new HttpRequestMessage(HttpMethod.Post, @$"/payment/rest/registerPreAuth.do")
+            var responce = await httpClient.SendAsync(new HttpRequestMessage(HttpMethod.Post, @$"/payment/rest/register.do")
             {
                 Content = new FormUrlEncodedContent(parameters)
             });
@@ -58,8 +60,8 @@ namespace Sber.ApiClient
         public async Task<ResponseCode> Refund(RefundRequest request)
         {
             var parameters = request.ToKeyValuePair(
-                new[]{new KeyValuePair<string, string>("userName", login),
-                    new KeyValuePair<string, string>("password", pass)});
+                new KeyValuePair<string, string>("userName", login),
+                    new KeyValuePair<string, string>("password", pass));
             var responce = await httpClient.SendAsync(new HttpRequestMessage(HttpMethod.Post, @$"/payment/rest/refund.do")
             {
                 Content = new FormUrlEncodedContent(parameters)
@@ -74,6 +76,28 @@ namespace Sber.ApiClient
             var status = await GetStatus(new OrderStatusRequest() { OrderNumber = orderNumber });
             return await Refund(new RefundRequest() { OrderId = status.GetOrderId(), Amount = amount });
         }
+
+        public async Task<ResponseCode> Reverse(string orderNumber, long amount)
+        {
+            var status = await GetStatus(new OrderStatusRequest() { OrderNumber = orderNumber });
+            return await Reverse(new ReverseRequest() { OrderId = status.GetOrderId(), Amount=amount });
+        }
+
+        public async Task<ResponseCode> Reverse(ReverseRequest request)
+        {
+            var parameters = request.ToKeyValuePair(
+                new KeyValuePair<string, string>("userName", login),
+                    new KeyValuePair<string, string>("password", pass));
+            var responce = await httpClient.SendAsync(new HttpRequestMessage(HttpMethod.Post, @$"/payment/rest/reverse.do")
+            {
+                Content = new FormUrlEncodedContent(parameters)
+            });
+            responce.EnsureSuccessStatusCode();
+            var stringRequest = await responce.Content.ReadAsStringAsync();
+            var result = JsonConvert.DeserializeObject<ResponseCode>(stringRequest);
+            return result;
+        }
+
 
         public async Task<bool> IsOrderPaid(string orderNumber)
         {
