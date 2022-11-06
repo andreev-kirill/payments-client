@@ -101,15 +101,8 @@ namespace Sber.ApiClient
 
         public async Task<bool> IsOrderPaid(string orderNumber)
         {
-            //0 - заказ зарегистрирован, но не оплачен;
-            //1 - предавторизованная сумма удержана(для двухстадийных платежей);
-            //2 - проведена полная авторизация суммы заказа;
-            //3 - авторизация отменена;
-            //4 - по транзакции была проведена операция возврата;
-            //5 - инициирована авторизация через сервер контроля доступа банка-эмитента;
-            //6 - авторизация отклонена.
             var status = await GetStatus(new OrderStatusRequest() { OrderNumber = orderNumber });
-            return status.OrderPayStatus == 2;
+            return status.IsOrderPaid();
         }
     }
 }

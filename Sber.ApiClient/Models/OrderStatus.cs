@@ -15,6 +15,10 @@ namespace Sber.ApiClient.Models
         public OrderAttribute[] Attributes { get; set; }
         [JsonProperty("actionCodeDescription")]
         public string ActionCodeDescription { get; set; }
+        [JsonProperty("amount")] 
+        public int? Amount { get; set; }
+        [JsonProperty("depositedDate")]
+        public int? DepositedDate { get; set; }
     }
     public class OrderAttribute
     {
