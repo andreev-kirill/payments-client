@@ -7,6 +7,24 @@ using System.Text;
 
 namespace Sber.ApiClient
 {
+    public static class OpenSberClientExt
+    {
+        public static string GetOrderId(this OrderStatus status)
+        {
+            return status.Attributes.Single(e => e.Name == "mdOrder").Value;
+        }
+        public static bool IsOrderPaid(this OrderStatus status)
+        {
+            //0 - заказ зарегистрирован, но не оплачен;
+            //1 - предавторизованная сумма удержана(для двухстадийных платежей);
+            //2 - проведена полная авторизация суммы заказа;
+            //3 - авторизация отменена;
+            //4 - по транзакции была проведена операция возврата;
+            //5 - инициирована авторизация через сервер контроля доступа банка-эмитента;
+            //6 - авторизация отклонена.
+            return status.OrderPayStatus == 2;
+        }
+    }
     internal static class SberClientExt
     {
         public static T ToDto<T>(this object source, Action<T> afterMap)
@@ -44,21 +62,6 @@ namespace Sber.ApiClient
                 var value = e.GetValue(source);
                 return new KeyValuePair<string, string>(toNameAttr == null ? e.Name : toNameAttr.Value, value == null ? null : value.ToString());
             }).Union(addItems);
-        }
-        public static string GetOrderId(this OrderStatus status)
-        {
-            return status.Attributes.Single(e => e.Name == "mdOrder").Value;
-        }
-        public static bool IsOrderPaid(this OrderStatus status)
-        {
-            //0 - заказ зарегистрирован, но не оплачен;
-            //1 - предавторизованная сумма удержана(для двухстадийных платежей);
-            //2 - проведена полная авторизация суммы заказа;
-            //3 - авторизация отменена;
-            //4 - по транзакции была проведена операция возврата;
-            //5 - инициирована авторизация через сервер контроля доступа банка-эмитента;
-            //6 - авторизация отклонена.
-            return status.OrderPayStatus == 2;
         }
     }
     public class ValueAttribute: Attribute
