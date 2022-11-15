@@ -17,6 +17,7 @@ namespace Sber.ApiClient
         Task<ResponseCode> Refund(string orderNumber, long amount);
         Task<ResponseCode> Reverse(ReverseRequest request);
         Task<ResponseCode> Reverse(string orderNumber, long amount);
+        Task<ResponseCode> DeclineOrder(DeclineOrderRequest request);
     }
     public class SberApiClient : ISberApiClient
     {
@@ -98,6 +99,20 @@ namespace Sber.ApiClient
             return result;
         }
 
+        public async Task<ResponseCode> DeclineOrder(DeclineOrderRequest request)
+        {
+            var parameters = request.ToKeyValuePair(
+                new[]{new KeyValuePair<string, string>("userName", login),
+                    new KeyValuePair<string, string>("password", pass)});
+            var responce = await httpClient.SendAsync(new HttpRequestMessage(HttpMethod.Post, @$"/payment/rest/decline.do")
+            {
+                Content = new FormUrlEncodedContent(parameters)
+            });
+            responce.EnsureSuccessStatusCode();
+            var stringRequest = await responce.Content.ReadAsStringAsync();
+            var result = JsonConvert.DeserializeObject<ResponseCode>(stringRequest);
+            return result;
+        }
 
         public async Task<bool> IsOrderPaid(string orderNumber)
         {
