@@ -70,6 +70,12 @@ namespace Sber.ApiClient
         {
             this.login = login;
             this.pass = pass;
+            //var httpClientHandler = new HttpClientHandler();
+            //httpClientHandler.ServerCertificateCustomValidationCallback = (message, cert, chain, sslPolicyErrors) =>
+            //{
+            //    //тут нужно проверить сертификат..... взять его из стора нашего?)
+            //    return true;
+            //};
             httpClient = new HttpClient() { BaseAddress = new Uri(baseUrl), Timeout = TimeSpan.FromSeconds(10) };
         }
         public async Task<Order> RegisterPay(PayRequest request)

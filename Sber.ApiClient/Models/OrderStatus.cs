@@ -18,7 +18,7 @@ namespace Sber.ApiClient.Models
         [JsonProperty("amount")] 
         public int? Amount { get; set; }
         [JsonProperty("depositedDate")]
-        public int? DepositedDate { get; set; }
+        public long? DepositedDate { get; set; }
     }
     public class OrderAttribute
     {
