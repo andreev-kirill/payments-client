@@ -18,5 +18,7 @@ namespace Sber.ApiClient
         public string Description { get; set; }
         [Value("sessionTimeoutSecs")]
         public int SessionTimeoutSecs { get; set; }
+        [Value("jsonParams")]
+        public string JsonParams { get; set; }
     }
 }
