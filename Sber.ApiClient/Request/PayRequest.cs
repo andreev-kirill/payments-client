@@ -20,5 +20,11 @@ namespace Sber.ApiClient
         public int SessionTimeoutSecs { get; set; }
         [Value("jsonParams")]
         public string JsonParams { get; set; }
+        [Value("payType")]
+        public string PayType { get; set; }
+        [Value("currency")]
+        public string Currency { get; set; } = "RUB";
+
+
     }
 }
