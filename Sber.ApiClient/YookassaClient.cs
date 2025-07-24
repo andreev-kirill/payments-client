@@ -1,4 +1,5 @@
-﻿using Sber.ApiClient.Models;
+﻿using Sber.ApiClient.Interfaces;
+using Sber.ApiClient.Models;
 using System;
 using System.Collections.Generic;
 using System.Net.Http;
@@ -9,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace Sber.ApiClient
 {
-    public class YookassaClient : ISberApiClient
+    public class YookassaClient : IPayClient
     {
         private readonly IHttpClientFactory httpClientFactory;
         public YookassaClient(IHttpClientFactory httpClientFactory) {
@@ -25,11 +26,11 @@ namespace Sber.ApiClient
             throw new NotImplementedException();
         }
 
-        public async Task<bool> IsOrderPaid(string orderNumber)
+        public async Task<bool> IsOrderPaid(string paymentId)
         {
             using var client = httpClientFactory.CreateClient("httpclient");
-            var responce = await client.GetFromJsonAsync<PaymentObjectList>("payments?status=success");
-
+            var responce = await client.GetFromJsonAsync<PayObject>($"payments/{paymentId}");
+            return responce.paid && !responce.refundable;
         }
 
         public Task<ResponseCode> Refund(RefundRequest request)

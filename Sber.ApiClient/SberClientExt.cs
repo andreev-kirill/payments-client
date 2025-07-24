@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Sber.ApiClient.Interfaces;
 using Sber.ApiClient.Models;
 using System;
 using System.Collections.Generic;
@@ -11,7 +12,7 @@ using System.Text;
 
 namespace Sber.ApiClient
 {
-    public static class OpenSberClientExt
+    public static class PayClientExt
     {
         public static void RegiserSberClient(this IHostApplicationBuilder builder, string apiUrl, (string login, string pass) cred)
         {
@@ -19,7 +20,7 @@ namespace Sber.ApiClient
             {
                 w.BaseAddress = new Uri(apiUrl);
             });
-            builder.Services.AddSingleton<ISberApiClient>(w => new SberApiClient(apiUrl, cred.login, cred.pass));
+            builder.Services.AddSingleton<IPayClient>(w => new SberApiClient(apiUrl, cred.login, cred.pass));
         }
         public static void RegiserYookassaClient(this IHostApplicationBuilder builder, string apiUrl, (string login, string pass) cred)
         {
@@ -29,7 +30,7 @@ namespace Sber.ApiClient
                 var key = Convert.ToBase64String(Encoding.UTF8.GetBytes($"{cred.login}:{cred.pass}"));
                 w.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", key);
             });
-            builder.Services.AddSingleton<ISberApiClient, YookassaClient>();
+            builder.Services.AddSingleton<IPayClient, YookassaClient>();
         }
         public static string GetOrderId(this OrderStatus status)
         {

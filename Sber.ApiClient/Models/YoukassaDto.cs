@@ -26,7 +26,7 @@ namespace Sber.ApiClient.Models
 
     public class Amount
     {
-        public string value { get; set; }
+        public decimal value { get; set; }
         public string currency { get; set; }
     }
 
