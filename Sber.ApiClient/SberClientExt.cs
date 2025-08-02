@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
 
@@ -20,7 +21,7 @@ namespace Sber.ApiClient
             {
                 w.BaseAddress = new Uri(apiUrl);
             });
-            builder.Services.AddSingleton<IPayClient>(w => new SberApiClient(apiUrl, cred.login, cred.pass));
+            builder.Services.AddSingleton<IPayClient>(w => new SberApiClient(w.GetRequiredService<IHttpClientFactory>(), cred.login, cred.pass));
         }
         public static void RegiserYookassaClient(this IHostApplicationBuilder builder, string apiUrl, (string login, string pass) cred)
         {
@@ -30,7 +31,7 @@ namespace Sber.ApiClient
                 var key = Convert.ToBase64String(Encoding.UTF8.GetBytes($"{cred.login}:{cred.pass}"));
                 w.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", key);
             });
-            builder.Services.AddSingleton<IPayClient, YookassaClient>();
+            builder.Services.AddSingleton<IPayClientYk, YookassaClient>();
         }
         public static string GetOrderId(this OrderStatus status)
         {
@@ -50,32 +51,32 @@ namespace Sber.ApiClient
     }
     internal static class SberClientExt
     {
-        public static T ToDto<T>(this object source, Action<T> afterMap)
-        {
-            var result = Create<T>();
-            var resultProperties = typeof(T).GetProperties().ToDictionary(e => e.Name);
-            foreach (var item in source.GetType().GetProperties())
-            {
-                if (resultProperties.TryGetValue(item.Name, out var value))
-                {
-                    value.SetValue(result, item.GetValue(source));                    
-                }
-            }
-            afterMap(result);
-            return result;
-        }
-        private static T Create<T>()
-        {
-            var typeCode = Type.GetTypeCode(typeof(T));
-            if (typeof(T).IsPrimitive
-                || typeCode == TypeCode.String
-                || typeCode == TypeCode.Decimal
-                || typeCode == TypeCode.DateTime)
-                return default(T);
-            NewExpression constructorExpression = Expression.New(typeof(T));
-            Expression<Func<T>> lambdaExpression = Expression.Lambda<Func<T>>(constructorExpression);
-            return lambdaExpression.Compile()();
-        }
+        //public static T ToDto<T>(this object source, Action<T> afterMap)
+        //{
+        //    var result = Create<T>();
+        //    var resultProperties = typeof(T).GetProperties().ToDictionary(e => e.Name);
+        //    foreach (var item in source.GetType().GetProperties())
+        //    {
+        //        if (resultProperties.TryGetValue(item.Name, out var value))
+        //        {
+        //            value.SetValue(result, item.GetValue(source));                    
+        //        }
+        //    }
+        //    afterMap(result);
+        //    return result;
+        //}
+        //private static T Create<T>()
+        //{
+        //    var typeCode = Type.GetTypeCode(typeof(T));
+        //    if (typeof(T).IsPrimitive
+        //        || typeCode == TypeCode.String
+        //        || typeCode == TypeCode.Decimal
+        //        || typeCode == TypeCode.DateTime)
+        //        return default(T);
+        //    NewExpression constructorExpression = Expression.New(typeof(T));
+        //    Expression<Func<T>> lambdaExpression = Expression.Lambda<Func<T>>(constructorExpression);
+        //    return lambdaExpression.Compile()();
+        //}
         public static IEnumerable<KeyValuePair<string, string>> ToKeyValuePair<T>(this T source, 
             params KeyValuePair<string, string>[] addItems)
         {

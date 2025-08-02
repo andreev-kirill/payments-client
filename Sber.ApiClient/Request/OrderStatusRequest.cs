@@ -9,4 +9,8 @@ namespace Sber.ApiClient
         [Value("orderNumber")]
         public string OrderNumber { get; set; }
     }
+    public class OrderStatusRequestYk
+    {
+        public string PaymentId { get; set; }
+    }
 }

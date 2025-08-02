@@ -24,7 +24,5 @@ namespace Sber.ApiClient
         public string PayType { get; set; }
         [Value("currency")]
         public string Currency { get; set; } = "RUB";
-
-
     }
 }

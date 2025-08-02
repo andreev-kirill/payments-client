@@ -11,4 +11,10 @@ namespace Sber.ApiClient
         [Value("amount")]
         public long Amount { get; set; }
     }
+    //отмена ссылки
+    public class ReverseRequestYk
+    {
+        public string PaymentId { get; set; }
+        public long Amount { get; set; }
+    }
 }

@@ -13,21 +13,19 @@ namespace Sber.ApiClient
     {
         private readonly string login;
         private readonly string pass;
-        private readonly HttpClient httpClient;
-        public SberApiClient(string baseUrl, string login, string pass)
+        private readonly IHttpClientFactory httpClientFactory;
+        public SberApiClient(
+            IHttpClientFactory httpClientFactory,
+            string login, string pass)
         {
             this.login = login;
             this.pass = pass;
-            //var httpClientHandler = new HttpClientHandler();
-            //httpClientHandler.ServerCertificateCustomValidationCallback = (message, cert, chain, sslPolicyErrors) =>
-            //{
-            //    //тут нужно проверить сертификат..... взять его из стора нашего?)
-            //    return true;
-            //};
-            httpClient = new HttpClient() { BaseAddress = new Uri(baseUrl), Timeout = TimeSpan.FromSeconds(10) };
+            this.httpClientFactory = httpClientFactory;
+            //httpClient = new HttpClient() { BaseAddress = new Uri(baseUrl), Timeout = TimeSpan.FromSeconds(10) };
         }
         public async Task<Order> RegisterPay(PayRequest request)
         {
+            using var httpClient = httpClientFactory.CreateClient("httpclient");
             var parameters = request.ToKeyValuePair(
                 new[]{new KeyValuePair<string, string>("userName", login),
                     new KeyValuePair<string, string>("password", pass)});
@@ -42,6 +40,7 @@ namespace Sber.ApiClient
         }
         public async Task<OrderStatus> GetStatus(OrderStatusRequest request)
         {
+            using var httpClient = httpClientFactory.CreateClient("httpclient");
             var parameters = request.ToKeyValuePair(
                 new[]{new KeyValuePair<string, string>("userName", login),
                     new KeyValuePair<string, string>("password", pass)});
@@ -56,6 +55,7 @@ namespace Sber.ApiClient
         }
         public async Task<ResponseCode> Refund(RefundRequest request)
         {
+            using var httpClient = httpClientFactory.CreateClient("httpclient");
             var parameters = request.ToKeyValuePair(
                 new KeyValuePair<string, string>("userName", login),
                     new KeyValuePair<string, string>("password", pass));
@@ -82,6 +82,7 @@ namespace Sber.ApiClient
 
         public async Task<ResponseCode> Reverse(ReverseRequest request)
         {
+            using var httpClient = httpClientFactory.CreateClient("httpclient");
             var parameters = request.ToKeyValuePair(
                 new KeyValuePair<string, string>("userName", login),
                     new KeyValuePair<string, string>("password", pass));
@@ -97,6 +98,7 @@ namespace Sber.ApiClient
 
         public async Task<ResponseCode> Decline(DeclineOrderRequest request)
         {
+            using var httpClient = httpClientFactory.CreateClient("httpclient");
             var parameters = request.ToKeyValuePair(
                 new[]{new KeyValuePair<string, string>("userName", login),
                     new KeyValuePair<string, string>("password", pass)});
