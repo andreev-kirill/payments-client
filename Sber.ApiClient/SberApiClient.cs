@@ -25,7 +25,7 @@ namespace Sber.ApiClient
         }
         public async Task<Order> RegisterPay(PayRequest request)
         {
-            using var httpClient = httpClientFactory.CreateClient("httpclient");
+            using var httpClient = httpClientFactory.CreateClient("httpclientsber");
             var parameters = request.ToKeyValuePair(
                 new[]{new KeyValuePair<string, string>("userName", login),
                     new KeyValuePair<string, string>("password", pass)});
@@ -40,7 +40,7 @@ namespace Sber.ApiClient
         }
         public async Task<OrderStatus> GetStatus(OrderStatusRequest request)
         {
-            using var httpClient = httpClientFactory.CreateClient("httpclient");
+            using var httpClient = httpClientFactory.CreateClient("httpclientsber");
             var parameters = request.ToKeyValuePair(
                 new[]{new KeyValuePair<string, string>("userName", login),
                     new KeyValuePair<string, string>("password", pass)});
@@ -55,7 +55,7 @@ namespace Sber.ApiClient
         }
         public async Task<ResponseCode> Refund(RefundRequest request)
         {
-            using var httpClient = httpClientFactory.CreateClient("httpclient");
+            using var httpClient = httpClientFactory.CreateClient("httpclientsber");
             var parameters = request.ToKeyValuePair(
                 new KeyValuePair<string, string>("userName", login),
                     new KeyValuePair<string, string>("password", pass));
@@ -82,7 +82,7 @@ namespace Sber.ApiClient
 
         public async Task<ResponseCode> Reverse(ReverseRequest request)
         {
-            using var httpClient = httpClientFactory.CreateClient("httpclient");
+            using var httpClient = httpClientFactory.CreateClient("httpclientsber");
             var parameters = request.ToKeyValuePair(
                 new KeyValuePair<string, string>("userName", login),
                     new KeyValuePair<string, string>("password", pass));
@@ -98,7 +98,7 @@ namespace Sber.ApiClient
 
         public async Task<ResponseCode> Decline(DeclineOrderRequest request)
         {
-            using var httpClient = httpClientFactory.CreateClient("httpclient");
+            using var httpClient = httpClientFactory.CreateClient("httpclientsber");
             var parameters = request.ToKeyValuePair(
                 new[]{new KeyValuePair<string, string>("userName", login),
                     new KeyValuePair<string, string>("password", pass)});

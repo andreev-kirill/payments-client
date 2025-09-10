@@ -17,18 +17,42 @@ namespace Sber.ApiClient
     {
         public static void RegiserSberClient(this IHostApplicationBuilder builder, string apiUrl, (string login, string pass) cred)
         {
-            builder.Services.AddHttpClient("httpclient", (w) =>
+            builder.Services.AddHttpClient("httpclientsber", (w) =>
             {
                 w.BaseAddress = new Uri(apiUrl);
             });
             builder.Services.AddSingleton<IPayClient>(w => new SberApiClient(w.GetRequiredService<IHttpClientFactory>(), cred.login, cred.pass));
         }
+        public static void RegiserSberClient(this IHostApplicationBuilder builder, Func<IServiceProvider, (string ApiUrl, string Login, string Pass)> loadSettings)
+        {
+            builder.Services.AddHttpClient("httpclientsber", (sp, w) =>
+            {
+                var settings = loadSettings(sp);
+                w.BaseAddress = new Uri(settings.ApiUrl);
+            });
+            builder.Services.AddSingleton<IPayClient>(w =>
+            {
+                var settings = loadSettings(w);
+                return new SberApiClient(w.GetRequiredService<IHttpClientFactory>(), settings.Login, settings.Pass);
+            });
+        }
         public static void RegiserYookassaClient(this IHostApplicationBuilder builder, string apiUrl, (string login, string pass) cred)
         {
-            builder.Services.AddHttpClient("httpclient", (w) =>
+            builder.Services.AddHttpClient("httpclientykassa", (w) =>
             {
                 w.BaseAddress = new Uri(apiUrl);
                 var key = Convert.ToBase64String(Encoding.UTF8.GetBytes($"{cred.login}:{cred.pass}"));
+                w.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", key);
+            });
+            builder.Services.AddSingleton<IPayClientYk, YookassaClient>();
+        }
+        public static void RegiserYookassaClient(this IHostApplicationBuilder builder, Func<IServiceProvider, (string ApiUrl, string Login, string Pass)> loadSettings)
+        {
+            builder.Services.AddHttpClient("httpclientykassa", (sp, w) =>
+            {
+                var settings = loadSettings(sp);
+                w.BaseAddress = new Uri(settings.ApiUrl);
+                var key = Convert.ToBase64String(Encoding.UTF8.GetBytes($"{settings.Login}:{settings.Pass}"));
                 w.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", key);
             });
             builder.Services.AddSingleton<IPayClientYk, YookassaClient>();
@@ -77,18 +101,19 @@ namespace Sber.ApiClient
         //    Expression<Func<T>> lambdaExpression = Expression.Lambda<Func<T>>(constructorExpression);
         //    return lambdaExpression.Compile()();
         //}
-        public static IEnumerable<KeyValuePair<string, string>> ToKeyValuePair<T>(this T source, 
+        public static IEnumerable<KeyValuePair<string, string>> ToKeyValuePair<T>(this T source,
             params KeyValuePair<string, string>[] addItems)
         {
-            return source.GetType().GetProperties().Select(e => {
+            return source.GetType().GetProperties().Select(e =>
+            {
                 var toNameAttr = e.GetCustomAttributes(typeof(ValueAttribute), false).Cast<ValueAttribute>().FirstOrDefault();
-                
+
                 var value = e.GetValue(source);
                 return new KeyValuePair<string, string>(toNameAttr == null ? e.Name : toNameAttr.Value, value == null ? null : value.ToString());
             }).Union(addItems);
         }
     }
-    public class ValueAttribute: Attribute
+    public class ValueAttribute : Attribute
     {
         public ValueAttribute(string name)
         {
