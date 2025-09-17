@@ -19,6 +19,7 @@ jobs:
         uses: actions/setup-dotnet@v1
         with:
           source-url: https://nuget.pkg.github.com/andreev-kirill/index.json
+          dotnet-version: '8'
         env:
           NUGET_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}        
           
