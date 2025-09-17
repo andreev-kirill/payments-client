@@ -41,10 +41,14 @@ namespace Sber.ApiClient
                 //4 - по транзакции была проведена операция возврата;
                 //5 - инициирована авторизация через сервер контроля доступа банка-эмитента;
                 //6 - авторизация отклонена.
+                //7 - отменен
                 OrderPayStatus = responce.status == "pending" ? 0
                 : responce.status == "waiting_for_capture" ? 1
                 : responce.status == "succeeded" ? 2
-                : throw new Exception(responce.status)
+                : 7,
+                //responce.status == "canceled"
+                //throw new Exception(responce.status),
+                Amount = (int)responce.amount.value * 100
             };
         }
 
@@ -52,7 +56,7 @@ namespace Sber.ApiClient
         {
             using var client = httpClientFactory.CreateClient("httpclientykassa");
             var responce = await client.GetFromJsonAsync<PayObject>($"payments/{paymentId}");
-            return responce.paid && !responce.refundable;
+            return responce.paid && responce.status == "succeeded";
         }
 
         public async Task<ResponseCode> Refund(RefundRequestYk request)
