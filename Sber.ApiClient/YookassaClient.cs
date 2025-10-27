@@ -92,7 +92,7 @@ namespace Sber.ApiClient
                     value = (decimal)request.Amount / (decimal)100,
                     currency = request.Currency
                 },
-                payment_method_data = new { type = request.PayType },
+                payment_method_data = string.IsNullOrEmpty(request.PayType) || request.PayType == "" ? null :  new { type = request.PayType },
                 confirmation = new { type = "redirect", return_url = request.ReturnUrl },
                 description = request.Description,
                 capture = true
