@@ -2,7 +2,8 @@ name: .NET
 
 on:
   push:
-    branches: [ "master" ]
+    tags:
+      - 'v*'
   pull_request:
     branches: [ "master" ]
 
@@ -10,6 +11,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     name: Update NuGet package
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
     steps:
 
       - name: Checkout repository
@@ -19,12 +21,17 @@ jobs:
         uses: actions/setup-dotnet@v1
         with:
           source-url: https://nuget.pkg.github.com/andreev-kirill/index.json
+          dotnet-version: '9.x'
         env:
-          NUGET_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}        
+          NUGET_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}    
+
+      - name: Extract version from tag
+        id: get_version
+        run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
           
       - name: Build solution and generate NuGet package
         run: |  
-          dotnet pack ./Sber.ApiClient/Sber.ApiClient.csproj -c Release -o out  
+          dotnet pack ./Sber.ApiClient/Sber.ApiClient.csproj -c Release -p:Version=${{ steps.get_version.outputs.VERSION }} -p:PackageVersion=${{ steps.get_version.outputs.VERSION }} -o out  
 
       - name: Push generated package to GitHub registry
         run: dotnet nuget push ./out/*.nupkg --skip-duplicate --no-symbols true
