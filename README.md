@@ -1,1 +1,1 @@
-# Sber.ApiClient
+# нагет для api сбера и yookassa
