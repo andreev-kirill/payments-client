@@ -48,7 +48,7 @@ namespace Sber.ApiClient
                 : 7,
                 //responce.status == "canceled"
                 //throw new Exception(responce.status),
-                Amount = (int)(responce.amount.value * 100)
+                Amount = (int)(responce.amount.value * 100m)
             };
         }
 
